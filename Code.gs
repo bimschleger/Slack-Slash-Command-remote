@@ -63,26 +63,37 @@ This receives a POST request and routes it to the correct function.
   */
 
 function doPost(e) {
-  if (typeof e == undefined) {
-    
-    return;
+  if (e.parameters.command == "/remote") {  // if the event is for the slash command "/remote"
+      
+    // var event = e.parameters.command;
+    return sendSlashCommandResponse();
     
   }
-  else {
-    var event = e.parameters;
-    if (event.command == "/remote") {  // if the event is for the slash command "/remote"
-      
-      var message = sendSlashResponse(event);
-      return message;
+  else {   // if the user got here from clicking a button
     
-    }
-    else if (event.payload) {   // if the user got here from clicking a button
-      // Reference this: https://github.com/sp71/ChoreTinder/blob/master/api.gs
-      return;
-      sendToSlack(event.payload);
-      
-    }
+//    var event = JSON.parse(e.parameter.payload);
+//    var messageText = {
+//      text: "Hello world."
+//    };
+//    var message = ContentService.createTextOutput(JSON.stringify(messageText))
+//    .setMimeType(ContentService.MimeType.JSON);
+//    
+//    return message;
+//    return;
+    
+    var event = JSON.parse(e.parameter.payload);
+    var userId = event.user.id;
+   
+    // var userId = event.user.id;
+    postSlackMessage(userId);
+    return ContentService.createTextOutput("Hey");
+    
+    // Reference this: https://github.com/sp71/ChoreTinder/blob/master/api.gs
+    
+    //    var buttonValue = event.actions[0].text.text;
+    //    
   }
+  // potentially add in elseif to cover for undefined scenario
 }
 
 
@@ -97,7 +108,7 @@ Reference: https://davidwalsh.name/using-slack-slash-commands-to-send-data-from-
 */
 
 
-function sendSlashResponse(event) {
+function sendSlashCommandResponse() {
   
    var body = {
 	"blocks": [
@@ -161,15 +172,15 @@ Sample postback even from button
 	"actions": [
 		{
 			"type": "button",
-			"block_id": "MYlLU",
-			"action_id": "jiqxy",
+			"block_id": "CoTKo",
+			"action_id": "Cuuk",
 			"text": {
 				"type": "plain_text",
-				"text": "Join Watercooler",
+				"text": "Join the Watercooler",
 				"emoji": true
 			},
 			"value": "watercooler",
-			"action_ts": "1585589518.115304"
+			"action_ts": "1585677820.894506"
 		}
 	]
 }
@@ -192,24 +203,39 @@ function getActionId(event) {
 // this will be useful for troubleshootingß
 
 
-function SendToSlack(event){
+function postSlackMessage(userId){
   
-  var channelId = "C01062RS83Y";
-  var type = event.type;
-  var user_name = event.user.username;
-  var actionId = event.actions[0].action_id;
+//  var userId = event.user.id;
+  // var value = event.actions;
+  var channelId = "C01062RS83Y";  
+//  var message = "<@" + userId + "> just joined the Watercooler.";
+  var body = {
+	"blocks": [
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "<@" + userId + "> just joined the Watercooler." 
+        },
+        "accessory": {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Join the Watercooler",
+            "emoji": true
+          },
+          "url": "https://www.arthur.design/water-cooler"
+        }
+      }
+    ]
+  }
   
-//  var channelId = "C01062RS83Y";
-//  var type = "banana";
-//  var user_name = "fruit";
-//  var actionId = "salad";
-  
-  var message = "Type: " + type + ", Username: " + user_name + ", Action ID: " + actionId;
+  // Need to add in a button as well.
   
   // Defines where and what of the slack message
   var payload = {token: SLACK_ACCESS_TOKEN, // OAuth bot token.
                  channel: channelId, 
-                 text:message};
+                 blocks: body};
   
   var options = {method: 'post',
                  payload: payload}
