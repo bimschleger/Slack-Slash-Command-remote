@@ -69,17 +69,17 @@ function doPost(e) {
     
   }
   else {
+    var event = e.parameters;
+    if (event.command == "/remote") {  // if the event is for the slash command "/remote"
       
-    if (e.parameters.command == "/remote") {  // if the event is for the slash command "/remote"
-      
-      var event = e.parameters.command;
       var message = sendSlashResponse(event);
       return message;
     
     }
-    else if (e.payload) {   // if the user got here from clicking a button
-      var event = e.payload;
-      sendToSlack(event);
+    else if (event.payload) {   // if the user got here from clicking a button
+      // Reference this: https://github.com/sp71/ChoreTinder/blob/master/api.gs
+      return;
+      sendToSlack(event.payload);
       
     }
   }
